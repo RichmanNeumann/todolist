@@ -22,7 +22,7 @@ function loadTasks() {
 
 // Function to save tasks to localStorage
 function saveTasks() {
-  const tasks = Array.from(todoList.children).map((listItem) => listItem.textContent.slice(0, -6)); // Remove the "Delete" text from the listItem
+  const tasks = Array.from(todoList.children).map((listItem) => listItem.firstChild.textContent);
   localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
@@ -30,7 +30,8 @@ function saveTasks() {
 function createTaskElement(taskText) {
   // Create a new list item
   const listItem = document.createElement('li');
-  listItem.textContent = taskText;
+  const taskTextNode = document.createTextNode(taskText);
+  listItem.appendChild(taskTextNode);
 
   // Create a delete button
   const deleteButton = document.createElement('button');
