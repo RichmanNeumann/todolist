@@ -41,8 +41,8 @@ function createTaskElement(taskText) {
   // Add the delete button to the list item
   listItem.appendChild(deleteButton);
 
-  // Add click event listener to the list item for editing
-  listItem.addEventListener('click', editTask);
+  // Add click event listener to the task text node for editing
+  taskTextNode.addEventListener('click', editTask);
 
   // Add the list item to the todoList
   todoList.appendChild(listItem);
@@ -50,6 +50,7 @@ function createTaskElement(taskText) {
   // Make the list sortable to allow reordering
   makeSortable(todoList);
 }
+
 
 // Function to add a task to the list
 function addTask() {
@@ -108,9 +109,19 @@ function deleteTask(event) {
 function makeSortable(list) {
   let draggedElement;
 
+  list.addEventListener('mousedown', (event) => {
+    // Check if the target is the task text node
+    if (event.target.nodeType === Node.TEXT_NODE) {
+      // Store the target's parent (list item) as the dragged element
+      draggedElement = event.target.parentNode;
+      draggedElement.draggable = true;
+    } else {
+      // Reset the dragged element and disable dragging
+      draggedElement = null;
+    }
+  });
+
   list.addEventListener('dragstart', (event) => {
-    // Store the dragged element
-    draggedElement = event.target;
     // Add a style to the dragged element
     event.target.style.opacity = '0.5';
   });
@@ -118,6 +129,8 @@ function makeSortable(list) {
   list.addEventListener('dragend', (event) => {
     // Remove the style from the dragged element
     event.target.style.opacity = '';
+    // Disable dragging on the dragged element
+    event.target.draggable = false;
   });
 
   list.addEventListener('dragover', (event) => {
@@ -139,7 +152,7 @@ function makeSortable(list) {
 
       // Insert the dragged element before the target list item
       list.insertBefore(draggedElement, target);
-      
+
       // Save the updated tasks to localStorage
       saveTasks();
     }
