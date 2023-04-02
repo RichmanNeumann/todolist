@@ -3,8 +3,52 @@ const todoInput = document.getElementById('todoInput');
 const addButton = document.getElementById('addButton');
 const todoList = document.getElementById('todoList');
 
+// Load the saved tasks from localStorage
+loadTasks();
+
 // Add event listener to the Add button
 addButton.addEventListener('click', addTask);
+
+// Function to load tasks from localStorage
+function loadTasks() {
+  const tasks = JSON.parse(localStorage.getItem('tasks'));
+
+  if (tasks) {
+    tasks.forEach((taskText) => {
+      createTaskElement(taskText);
+    });
+  }
+}
+
+// Function to save tasks to localStorage
+function saveTasks() {
+  const tasks = Array.from(todoList.children).map((listItem) => listItem.textContent.slice(0, -6)); // Remove the "Delete" text from the listItem
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Function to create and append a task element to the list
+function createTaskElement(taskText) {
+  // Create a new list item
+  const listItem = document.createElement('li');
+  listItem.textContent = taskText;
+
+  // Create a delete button
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', deleteTask);
+
+  // Add the delete button to the list item
+  listItem.appendChild(deleteButton);
+
+  // Add click event listener to the list item for editing
+  listItem.addEventListener('click', editTask);
+
+  // Add the list item to the todoList
+  todoList.appendChild(listItem);
+
+  // Make the list sortable to allow reordering
+  makeSortable(todoList);
+}
 
 // Function to add a task to the list
 function addTask() {
@@ -13,29 +57,13 @@ function addTask() {
 
   // Check if the input is not empty
   if (taskText) {
-    // Create a new list item
-    const listItem = document.createElement('li');
-    listItem.textContent = taskText;
-
-    // Create a delete button
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', deleteTask);
-
-    // Add the delete button to the list item
-    listItem.appendChild(deleteButton);
-
-    // Add click event listener to the list item for editing
-    listItem.addEventListener('click', editTask);
-
-    // Add the list item to the todoList
-    todoList.appendChild(listItem);
+    createTaskElement(taskText);
 
     // Clear the input field
     todoInput.value = '';
 
-    // Make the list sortable to allow reordering
-    makeSortable(todoList);
+    // Save the updated tasks to localStorage
+    saveTasks();
   }
 }
 
@@ -53,6 +81,9 @@ function editTask(event) {
     if (newTaskText && newTaskText.trim() !== listItem.textContent) {
       // Update the list item text
       listItem.textContent = newTaskText.trim();
+
+      // Save the updated tasks to localStorage
+      saveTasks();
     }
   }
 }
@@ -67,6 +98,9 @@ function deleteTask(event) {
 
   // Remove the list item from the todoList
   todoList.removeChild(listItem);
+
+  // Save the updated tasks to localStorage
+  saveTasks();
 }
 
 // Function to make a list sortable using drag and drop
