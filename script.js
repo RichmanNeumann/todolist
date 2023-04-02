@@ -108,31 +108,40 @@ function deleteTask(event) {
 function makeSortable(list) {
   let draggedElement;
 
-  // Add event listeners for drag and drop events
   list.addEventListener('dragstart', (event) => {
+    // Store the dragged element
     draggedElement = event.target;
-    event.dataTransfer.setData('text/plain', ''); // Required for Firefox
+    // Add a style to the dragged element
+    event.target.style.opacity = '0.5';
+  });
+
+  list.addEventListener('dragend', (event) => {
+    // Remove the style from the dragged element
+    event.target.style.opacity = '';
   });
 
   list.addEventListener('dragover', (event) => {
-    event.preventDefault(); // Allow dropping
+    // Prevent the default behavior to allow dropping
+    event.preventDefault();
   });
 
   list.addEventListener('drop', (event) => {
+    // Prevent the default behavior
     event.preventDefault();
 
-    // Get the target list item where the dragged element was dropped
-    const targetElement = event.target.closest('li');
+    // Get the target list item
+    const target = event.target.closest('li');
 
-    // Check if the target element is not the same as the dragged element
-    if (targetElement && targetElement !== draggedElement) {
-      // Insert the dragged element before the target element
-      list.insertBefore(draggedElement, targetElement);
+    // Check if the target is a list item and not the same as the dragged element
+    if (target && target !== draggedElement) {
+      // Remove the dragged element from its current position
+      list.removeChild(draggedElement);
+
+      // Insert the dragged element before the target list item
+      list.insertBefore(draggedElement, target);
+      
+      // Save the updated tasks to localStorage
+      saveTasks();
     }
-  });
-
-  // Set draggable attribute for each list item
-  Array.from(list.children).forEach((listItem) => {
-    listItem.setAttribute('draggable', 'true');
   });
 }
